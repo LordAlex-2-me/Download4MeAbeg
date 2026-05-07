@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Download4MePls</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #06090e;
+  --surface:     #0c1118;
+  --surface2:    #111922;
+  --border:      #1c2530;
+  --border2:     #253040;
+  --accent:      #00c2e0;
+  --accent2:     #0091a8;
+  --accent-glow: rgba(0,194,224,0.12);
+  --text:        #dde6f0;
+  --muted:       #566778;
+  --muted2:      #8a9baa;
+  --success:     #1fd68a;
+  --warn:        #f5a623;
+  --error:       #f04f55;
+  --purple:      #9b72e8;
+  --font-ui:     'DM Sans', sans-serif;
+  --font-head:   'Syne', sans-serif;
+  --font-mono:   'JetBrains Mono', monospace;
+  --radius:      10px;
+  --radius-sm:   6px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: linear-gradient(transparent 50%, rgba(0,194,224,0.013) 50%);
+  background-size: 100% 4px;
+  pointer-events: none; z-index: 0;
+}
+
+.shell { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Header ─────────────────────────────────────────────── */
+header { padding: 44px 0 36px; border-bottom: 1px solid var(--border); margin-bottom: 34px; }
+
+.logo { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+
+.logo-mark {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border-radius: 9px;
+  display: grid; place-items: center;
+  box-shadow: 0 0 20px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+h1 {
+  font-family: var(--font-head);
+  font-size: 24px; font-weight: 800;
+  letter-spacing: -0.3px; color: #fff;
+}
+h1 span { color: var(--accent); }
+
+.tagline { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+
+/* ── Section label ──────────────────────────────────────── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── Card ───────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  transition: border-color 0.2s;
+}
+.card:focus-within { border-color: var(--border2); }
+
+/* ── Form ───────────────────────────────────────────────── */
+.form-section { margin-bottom: 32px; }
+.form-row { margin-bottom: 13px; }
+
+label { display: block; font-size: 11.5px; color: var(--muted2); margin-bottom: 6px; letter-spacing: 0.3px; }
+
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+#url-input { font-family: var(--font-mono); font-size: 12.5px; }
+input::placeholder { color: var(--muted); }
+input:focus, select:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.url-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.url-hint-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted2);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23566778' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px;
+}
+select option { background: var(--surface2); }
+
+.cred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cred-grid.single { grid-template-columns: 1fr; }
+.cred-fields { display: none; }
+.cred-fields.visible { display: block; }
+.cred-fields .cred-grid { margin-top: 10px; }
+
+.btn-primary {
+  width: 100%; margin-top: 16px;
+  background: var(--accent); border: none;
+  border-radius: var(--radius-sm);
+  color: #03090e;
+  font-family: var(--font-head); font-size: 14px; font-weight: 700;
+  padding: 11px 20px; cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { background: #00d8fa; box-shadow: 0 0 24px rgba(0,194,224,0.28); }
+.btn-primary:active { transform: scale(0.99); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Jobs list ──────────────────────────────────────────── */
+.jobs-section { margin-bottom: 32px; }
+#jobs-list { display: flex; flex-direction: column; gap: 10px; }
+
+.empty-state {
+  text-align: center; padding: 44px 20px;
+  color: var(--muted); font-size: 13px;
+  border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.35; display: block; }
+
+/* ── Job card ───────────────────────────────────────────── */
+.job-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 17px;
+  display: grid; grid-template-rows: auto auto auto auto;
+  gap: 7px;
+  animation: slide-in 0.22s ease;
+}
+.job-card.complete    { border-color: rgba(31,214,138,0.18); }
+.job-card.error       { border-color: rgba(240,79,85,0.18); }
+.job-card.downloading { border-color: rgba(0,194,224,0.16); }
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.job-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.job-name { font-family: var(--font-mono); font-size: 12.5px; color: var(--text); word-break: break-all; line-height: 1.4; }
+.job-badges { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+.badge {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+}
+.badge.pending     { background: rgba(86,103,120,0.2);  color: var(--muted2); }
+.badge.downloading { background: rgba(0,194,224,0.12);  color: var(--accent); }
+.badge.complete    { background: rgba(31,214,138,0.12); color: var(--success); }
+.badge.error       { background: rgba(240,79,85,0.12);  color: var(--error); }
+
+/* type badges */
+.type-badge { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; }
+.type-http    { background: rgba(0,194,224,0.08);  color: var(--accent2); }
+.type-ytdlp   { background: rgba(155,114,232,0.1); color: var(--purple); }
+.type-torrent { background: rgba(245,166,35,0.1);  color: var(--warn); }
+
+.job-url { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); word-break: break-all; line-height: 1.4; }
+
+/* torrent file list */
+.torrent-files {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted2);
+  line-height: 1.6;
+  max-height: 72px;
+  overflow-y: auto;
+}
+
+.progress-wrap { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-bar  { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.progress-bar.active   { background: var(--accent);   box-shadow: 0 0 8px var(--accent); }
+.progress-bar.ytdlp    { background: var(--purple);   box-shadow: 0 0 8px var(--purple); }
+.progress-bar.torrent  { background: var(--warn);     box-shadow: 0 0 6px var(--warn); }
+.progress-bar.complete { background: var(--success);  box-shadow: 0 0 8px var(--success); }
+.progress-bar.errored  { background: var(--error);    box-shadow: none; }
+
+.job-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.job-size    { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted2); }
+.job-error-msg { font-size: 11.5px; color: var(--error); }
+
+.btn-icon {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; border-radius: 4px;
+  transition: color 0.15s, background 0.15s; display: flex; align-items: center;
+}
+.btn-icon:hover { color: var(--text); background: var(--surface2); }
+.btn-icon.danger:hover { color: var(--error); }
+
+.btn-dl {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(31,214,138,0.1);
+  border: 1px solid rgba(31,214,138,0.22);
+  border-radius: var(--radius-sm);
+  color: var(--success);
+  font-family: var(--font-head); font-size: 12px; font-weight: 600;
+  padding: 5px 12px; cursor: pointer; text-decoration: none;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn-dl:hover { background: rgba(31,214,138,0.18); box-shadow: 0 0 14px rgba(31,214,138,0.14); }
+
+.btn-retry {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.22);
+  border-radius: var(--radius-sm);
+  color: var(--warn);
+  font-family: var(--font-head); font-size: 12px; font-weight: 600;
+  padding: 5px 12px; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-retry:hover { background: rgba(245,166,35,0.16); }
+
+/* ── Toast ──────────────────────────────────────────────── */
+#toast-container { position: fixed; bottom: 22px; right: 22px; display: flex; flex-direction: column; gap: 8px; z-index: 100; pointer-events: none; }
+.toast {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: toast-in 0.2s ease, toast-out 0.2s ease 2.8s forwards;
+  max-width: 300px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error   { border-left: 3px solid var(--error); }
+.toast.info    { border-left: 3px solid var(--accent); }
+@keyframes toast-in  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@keyframes toast-out { to   { opacity:0; transform:translateY(8px); } }
+
+@media (max-width: 540px) {
+  .cred-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#03090e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </div>
+      <h1>Download<span>4Me</span>Pls</h1>
+    </div>
+    <p class="tagline">HTTP · YouTube/Vimeo/TikTok/Twitter · Magnet links · .torrent files</p>
+  </header>
+
+  <!-- Request form -->
+  <section class="form-section">
+    <div class="section-label">New request</div>
+    <div class="card">
+
+      <div class="form-row">
+        <label for="url-input">URL or magnet link</label>
+        <input type="text" id="url-input"
+          placeholder="https://… or magnet:?xt=urn:btih:… or youtube.com/watch?v=…"
+          autocomplete="off" spellcheck="false" />
+        <div class="url-hint">
+          <span>Auto-detects:</span>
+          <span class="url-hint-chip">direct URL</span>
+          <span class="url-hint-chip">YouTube / Vimeo / TikTok / Twitter / Reddit</span>
+          <span class="url-hint-chip">magnet link</span>
+          <span class="url-hint-chip">.torrent URL</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="filename-input">Save as <span style="color:var(--muted);font-size:10.5px">(optional)</span></label>
+        <input type="text" id="filename-input" placeholder="auto-detected" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <div class="form-row">
+        <label for="cred-type">Authentication</label>
+        <select id="cred-type">
+          <option value="none">None — public URL</option>
+          <option value="basic">Basic auth (username + password)</option>
+          <option value="bearer">Bearer token</option>
+          <option value="cookie">Cookie string (also for yt-dlp)</option>
+          <option value="header">Custom header</option>
+        </select>
+      </div>
+
+      <div id="cred-basic" class="cred-fields">
+        <div class="cred-grid">
+          <div><label>Username</label><input type="text" id="cred-user" placeholder="username" autocomplete="off" /></div>
+          <div><label>Password</label><input type="password" id="cred-pass" placeholder="••••••••" /></div>
+        </div>
+      </div>
+      <div id="cred-bearer" class="cred-fields">
+        <div class="cred-grid single"><div><label>Token</label><input type="password" id="cred-token" placeholder="eyJhbGci..." autocomplete="off" /></div></div>
+      </div>
+      <div id="cred-cookie" class="cred-fields">
+        <div class="cred-grid single"><div><label>Cookie string</label><input type="text" id="cred-cookie-val" placeholder="session=abc123; token=xyz" autocomplete="off" spellcheck="false" /></div></div>
+      </div>
+      <div id="cred-header" class="cred-fields">
+        <div class="cred-grid">
+          <div><label>Header name</label><input type="text" id="cred-hname" placeholder="X-Api-Key" autocomplete="off" /></div>
+          <div><label>Header value</label><input type="text" id="cred-hval" placeholder="sk-..." autocomplete="off" spellcheck="false" /></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="submit-btn" onclick="submitJob()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Fetch it
+      </button>
+    </div>
+  </section>
+
+  <!-- Jobs list -->
+  <section class="jobs-section">
+    <div class="section-label">Downloads</div>
+    <div id="jobs-list">
+      <div class="empty-state">
+        <span class="empty-icon">↓</span>
+        Nothing yet — paste a URL, magnet link, or video page above
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+let pollTimer = null;
+const activeJobs = new Set();
+
+// Credential toggle
+document.getElementById('cred-type').addEventListener('change', function () {
+  ['basic','bearer','cookie','header'].forEach(t =>
+    document.getElementById(`cred-${t}`).classList.remove('visible'));
+  if (this.value !== 'none') document.getElementById(`cred-${this.value}`).classList.add('visible');
+});
+
+// Submit
+async function submitJob() {
+  const urlInput = document.getElementById('url-input');
+  const url = urlInput.value.trim();
+  if (!url) { toast('Please enter a URL or magnet link', 'error'); urlInput.focus(); return; }
+
+  const filename = document.getElementById('filename-input').value.trim() || null;
+  const credType = document.getElementById('cred-type').value;
+  let credentials = null;
+
+  if (credType === 'basic') {
+    const u = document.getElementById('cred-user').value.trim();
+    const p = document.getElementById('cred-pass').value;
+    if (!u || !p) { toast('Enter username and password', 'error'); return; }
+    credentials = { type: 'basic', username: u, password: p };
+  } else if (credType === 'bearer') {
+    const t = document.getElementById('cred-token').value.trim();
+    if (!t) { toast('Enter bearer token', 'error'); return; }
+    credentials = { type: 'bearer', token: t };
+  } else if (credType === 'cookie') {
+    const v = document.getElementById('cred-cookie-val').value.trim();
+    if (!v) { toast('Enter cookie string', 'error'); return; }
+    credentials = { type: 'cookie', value: v };
+  } else if (credType === 'header') {
+    const n = document.getElementById('cred-hname').value.trim();
+    const v = document.getElementById('cred-hval').value.trim();
+    if (!n || !v) { toast('Enter header name and value', 'error'); return; }
+    credentials = { type: 'header', name: n, value: v };
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, filename, credentials }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Unknown error');
+
+    const typeLabel = { http: 'HTTP', ytdlp: 'Video', torrent: 'Torrent' }[data.type] || '';
+    toast(`${typeLabel} job queued ✓`, 'success');
+
+    urlInput.value = '';
+    document.getElementById('filename-input').value = '';
+    document.getElementById('cred-type').value = 'none';
+    ['basic','bearer','cookie','header'].forEach(t =>
+      document.getElementById(`cred-${t}`).classList.remove('visible'));
+
+    activeJobs.add(data.jobId);
+    startPolling();
+    await refreshJobs();
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitJob();
+});
+
+// Polling
+function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(async () => {
+    if (activeJobs.size === 0) { clearInterval(pollTimer); pollTimer = null; return; }
+    await refreshJobs();
+  }, 2000);
+}
+
+async function refreshJobs() {
+  try {
+    const res = await fetch('/api/jobs');
+    const jobs = await res.json();
+    jobs.forEach(j => {
+      if (j.status === 'complete' || j.status === 'error') activeJobs.delete(j.id);
+      if (j.status === 'pending' || j.status === 'downloading') activeJobs.add(j.id);
+    });
+    renderJobs(jobs);
+  } catch { /* retry */ }
+}
+
+// Render
+function renderJobs(jobs) {
+  const el = document.getElementById('jobs-list');
+  if (!jobs.length) {
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">↓</span>Nothing yet — paste a URL, magnet link, or video page above</div>`;
+    return;
+  }
+  el.innerHTML = jobs.map(jobCardHTML).join('');
+}
+
+const TYPE_LABELS = { http: 'HTTP', ytdlp: 'VIDEO', torrent: 'TORRENT' };
+const TYPE_CLASSES = { http: 'type-http', ytdlp: 'type-ytdlp', torrent: 'type-torrent' };
+
+function jobCardHTML(j) {
+  const pct = j.status === 'complete' ? 100 : (j.progress || 0);
+  const barClass = j.status === 'complete' ? 'complete' : j.status === 'error' ? 'errored'
+    : j.type === 'ytdlp' ? 'ytdlp' : j.type === 'torrent' ? 'torrent' : 'active';
+
+  const urlShort = j.url.length > 72 ? j.url.slice(0, 72) + '…' : j.url;
+  const typeLabel = TYPE_LABELS[j.type] || 'HTTP';
+  const typeClass = TYPE_CLASSES[j.type] || 'type-http';
+
+  // Torrent file list
+  let torrentFilesHTML = '';
+  if (j.torrentInfo?.files?.length > 1) {
+    const fileLines = j.torrentInfo.files.map(f =>
+      `${esc(f.name)} <span style="color:var(--muted)">${fmtBytes(f.length)}</span>`
+    ).join('<br>');
+    torrentFilesHTML = `<div class="torrent-files">${fileLines}</div>`;
+  }
+
+  // Torrent peers
+  let peersHTML = '';
+  if (j.type === 'torrent' && j.torrentInfo?.peers != null && j.status === 'downloading') {
+    peersHTML = `<span class="job-size" style="color:var(--warn)">${j.torrentInfo.peers} peer${j.torrentInfo.peers !== 1 ? 's' : ''}</span>`;
+  }
+
+  let actionsHTML = '';
+  if (j.status === 'complete') {
+    actionsHTML = `
+      <span class="job-size">${j.sizeFormatted || ''}</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <a class="btn-dl" href="/api/download/${j.id}">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <button class="btn-icon danger" onclick="deleteJob('${j.id}')" title="Delete">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </div>`;
+  } else if (j.status === 'error') {
+    actionsHTML = `
+      <span class="job-error-msg">${esc(j.error || 'Unknown error')}</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn-retry" onclick="retryJob('${j.id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+          Retry
+        </button>
+        <button class="btn-icon danger" onclick="deleteJob('${j.id}')" title="Delete">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`;
+  } else {
+    const pctLabel = j.totalBytes ? `${pct}%` : j.type === 'torrent' ? 'Connecting…' : 'Fetching…';
+    actionsHTML = `
+      ${peersHTML || `<span class="job-size" style="color:var(--accent)">${pctLabel}</span>`}
+      <button class="btn-icon danger" onclick="deleteJob('${j.id}')" title="Cancel">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>`;
+  }
+
+  return `
+  <div class="job-card ${j.status}">
+    <div class="job-top">
+      <span class="job-name">${esc(j.filename)}</span>
+      <div class="job-badges">
+        <span class="type-badge ${typeClass}">${typeLabel}</span>
+        <span class="badge ${j.status}">${j.status}</span>
+      </div>
+    </div>
+    <div class="job-url">${esc(urlShort)}</div>
+    ${torrentFilesHTML}
+    <div class="progress-wrap">
+      <div class="progress-bar ${barClass}" style="width:${pct}%"></div>
+    </div>
+    <div class="job-actions">${actionsHTML}</div>
+  </div>`;
+}
+
+function fmtBytes(b) {
+  if (!b) return '';
+  if (b < 1024) return `${b} B`;
+  if (b < 1048576) return `${(b/1024).toFixed(1)} KB`;
+  if (b < 1073741824) return `${(b/1048576).toFixed(1)} MB`;
+  return `${(b/1073741824).toFixed(2)} GB`;
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Actions
+async function deleteJob(id) {
+  try {
+    await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+    activeJobs.delete(id);
+    await refreshJobs();
+    toast('Removed', 'info');
+  } catch { toast('Could not delete', 'error'); }
+}
+
+async function retryJob(id) {
+  try {
+    const res = await fetch(`/api/jobs/${id}/retry`, { method: 'POST' });
+    if (!res.ok) throw new Error((await res.json()).error);
+    activeJobs.add(id);
+    startPolling();
+    await refreshJobs();
+    toast('Retrying…', 'info');
+  } catch (err) { toast(err.message, 'error'); }
+}
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// Init
+(async () => { await refreshJobs(); startPolling(); })();
+</script>
+</body>
+</html>

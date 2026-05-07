@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: download4mepls
+    env: node
+    buildCommand: pip3 install yt-dlp && npm install
+    startCommand: node server.js
+    envVars:
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY
+        sync: false
+      - key: R2_SECRET_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
