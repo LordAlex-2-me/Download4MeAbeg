@@ -167,7 +167,7 @@ async function downloadYtdlp(jobId, url, credentials) {
     '--no-playlist',
     '--merge-output-format', 'mp4',
     '--newline',
-    '--js-runtimes', 'node',  // use the server's Node.js runtime for YouTube extraction
+    '--js-runtimes node',  // use the server's Node.js runtime for YouTube extraction
   ];
 
   // Pass cookies if provided
