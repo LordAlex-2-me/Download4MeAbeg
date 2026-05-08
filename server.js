@@ -16,17 +16,33 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
+// ── Startup validation ─────────────────────────────────────────────────────────
+// Fail loudly at boot if any required R2 variable is missing or blank.
+// This surfaces the problem in the Render deploy logs immediately, rather than
+// letting the server start and fail silently on the first actual download attempt.
+const REQUIRED_ENV = ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY', 'R2_SECRET_KEY', 'R2_BUCKET'];
+const missing = REQUIRED_ENV.filter(k => !process.env[k] || !process.env[k].trim());
+if (missing.length) {
+  console.error('=== Download4MePls: MISSING ENVIRONMENT VARIABLES ===');
+  console.error(`The following required variables are not set: ${missing.join(', ')}`);
+  console.error('Set them in Render dashboard -> Your Service -> Environment.');
+  console.error('The server will not start until all four R2 variables are present.');
+  process.exit(1);
+}
+
 // ── R2 client ──────────────────────────────────────────────────────────────────
+// Trim all values defensively — copy-pasting keys from Cloudflare sometimes
+// introduces a trailing newline or space, which makes the SDK reject them.
 const r2 = new S3Client({
   region: 'auto',
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${process.env.R2_ACCOUNT_ID.trim()}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId:     process.env.R2_ACCESS_KEY,
-    secretAccessKey: process.env.R2_SECRET_KEY,
+    accessKeyId:     process.env.R2_ACCESS_KEY.trim(),
+    secretAccessKey: process.env.R2_SECRET_KEY.trim(),
   },
 });
 
-const R2_BUCKET = process.env.R2_BUCKET || 'download4mepls';
+const R2_BUCKET = process.env.R2_BUCKET.trim();
 
 // ── Job store (in-memory) ──────────────────────────────────────────────────────
 const jobs = {};
@@ -167,7 +183,7 @@ async function downloadYtdlp(jobId, url, credentials) {
     '--no-playlist',
     '--merge-output-format', 'mp4',
     '--newline',
-    '--js-runtimes node',  // use the server's Node.js runtime for YouTube extraction
+    '--js-runtimes', 'node',  // use the server's Node.js runtime for YouTube extraction
   ];
 
   // Pass cookies if provided
@@ -359,6 +375,16 @@ async function runDownload(jobId) {
 }
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+
+// Health check — visit /api/health to confirm server is running and R2 config loaded
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    r2Endpoint: `https://${process.env.R2_ACCOUNT_ID.trim()}.r2.cloudflarestorage.com`,
+    r2Bucket: R2_BUCKET,
+    jobCount: Object.keys(jobs).length,
+  });
+});
 
 app.get('/api/jobs', (req, res) => {
   const list = Object.values(jobs)
